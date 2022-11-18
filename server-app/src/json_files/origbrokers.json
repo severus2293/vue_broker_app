@@ -1,0 +1,56 @@
+[
+  {
+    "id": 0,
+    "name": "James",
+    "money": 1200,
+    "active": false,
+    "stocks": [{
+      "id": 0,
+      "count": 0
+    },{"id": 1,
+      "count": 0},{"id": 2,
+      "count": 0},{"id": 3,
+      "count": 0},{"id": 4,
+      "count": 0},{"id": 5,
+      "count": 0},{"id": 6,
+      "count": 0},{"id": 7,
+      "count": 0}],
+    "role": "user"
+  },
+  {
+    "id": 1,
+    "name": "Tommy",
+    "money": 500,
+    "active": false,
+    "stocks": [{
+      "id": 0,
+      "count": 0
+    },{"id": 1,
+      "count": 0},{"id": 2,
+      "count": 0},{"id": 3,
+      "count": 0},{"id": 4,
+      "count": 0},{"id": 5,
+      "count": 0},{"id": 6,
+      "count": 0},{"id": 7,
+      "count": 0}],
+    "role": "user"
+  },
+  {
+    "id": 2,
+    "name": "Charles",
+    "money": 700,
+    "active": false,
+    "stocks": [{
+      "id": 0,
+      "count": 0
+    },{"id": 1,
+      "count": 0},{"id": 2,
+      "count": 0},{"id": 3,
+      "count": 0},{"id": 4,
+      "count": 0},{"id": 5,
+      "count": 0},{"id": 6,
+      "count": 0},{"id": 7,
+      "count": 0}],
+    "role": "admin"
+  }
+]
