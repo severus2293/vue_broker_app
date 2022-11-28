@@ -64,6 +64,18 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
     fs.writeFileSync(__dirname + '/brokers.json', JSON.stringify(brokers));
     this.server.emit('authorization_status', brokers);
   }
+  @SubscribeMessage('changeRole')
+  ChangeRole(client: Socket, body): void {   // передать что клиент зашёл в аккаунт
+    const __dirname = path.resolve() + '/src/json_files';
+    for (let i = 0; i < brokers.length; i++) {
+      if (brokers[i].id === parseInt(body.id)) {
+        brokers[i].role = body.value
+        break;
+      }
+    }
+    fs.writeFileSync(__dirname + '/brokers.json', JSON.stringify(brokers));
+    this.server.emit('authorization_status', brokers);
+  }
   @SubscribeMessage('changeCountStocks')
   ChangeCountStocks(client: Socket, body): void {
     const __dirname = path.resolve() + '/src/json_files';
@@ -73,8 +85,13 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
         break;
       }
     }
+    const res = [];
+    for (let i = 0; i < stocks.length; i++) {
+      res.push({ data: stocks[i], info: stocks_info[i] });
+    }
     fs.writeFileSync(__dirname + '/stocks.json', JSON.stringify(stocks));
-    this.server.emit('updateCountStocks', stocks);
+    this.server.emit('UpdateStocks', res);
+    //this.server.emit('updateCountStocks', stocks);
   }
   @SubscribeMessage('changeParticipationStocks')
   ChangeParticipationStocks(client: Socket, body): void {
@@ -87,11 +104,14 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
     }
     fs.writeFileSync(__dirname + '/stocks.json', JSON.stringify(stocks));
     const res = [];
+    const cur = []
     for (let i = 0; i < stocks.length; i++) {
       if (stocks[i].participation) {
         res.push({ data: stocks[i], info: stocks_info[i] });
       }
+      cur.push({ data: stocks[i], info: stocks_info[i] });
     }
+    this.server.emit('UpdateStocks', cur);
     this.server.emit('BargainStocks', res);
   }
   @SubscribeMessage('changeStart')
@@ -127,10 +147,17 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
     fs.writeFileSync(__dirname + '/brokers.json', JSON.stringify(brokers));
     this.server.emit('authorization_status', brokers);
   }
+
+  @SubscribeMessage('changePrice')
+  ChangePrice(client: Socket, body): void {   // передать что клиент зашёл в аккаунт
+    this.server.emit('priceUpdate', body);
+    console.log('QWERWTRE')
+  }
   @SubscribeMessage('start_bargaing')
   StartBargaing(client: Socket, body): void {
     // передать что клиент зашёл в аккаунт
     if(body.process === true){
+      this.server.emit('access',{value: true})
       if(this.timer){
         clearInterval(this.timer)
         const message = {
@@ -145,6 +172,7 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
       this.timer = setInterval(() => {
         if(cur_day === end){
           clearInterval(this.timer)
+          this.server.emit('access',{value: false})
           this.timer = null
         }
         if (time > 0) {
@@ -167,10 +195,77 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
             speed: time,
             date: cur_day
           }
+
           this.server.emit('ChangeTime',message)
         }
       }, 1000);
     }
+  }
+  @SubscribeMessage('BuyStock')
+  BuyStock(client: Socket, body): void {
+    const __dirname = path.resolve() + '/src/json_files';
+    for (let i = 0; i < brokers.length; i++) {
+      if (brokers[i].id === parseInt(body.userid)) {
+        brokers[i].money -= body.price*body.count
+        for(let j = 0; j < brokers[i].stocks.length; j++){
+          if(brokers[i].stocks[j].id === body.stockid){
+            brokers[i].stocks[j].count += body.count
+            brokers[i].stocks[j].difference -= body.price*body.count
+            break;
+          }
+        }
+        break;
+      }
+    }
+    for(let i = 0; i < stocks.length; i++){
+      if (stocks[i].id === parseInt(body.stockid)){
+        stocks[i].count -= body.count
+        break;
+      }
+          }
+    const res = [];
+    for (let i = 0; i < stocks.length; i++) {
+      if (stocks[i].participation) {
+        res.push({ data: stocks[i], info: stocks_info[i] });
+      }
+    }
+    fs.writeFileSync(__dirname + '/stocks.json', JSON.stringify(stocks));
+    fs.writeFileSync(__dirname + '/brokers.json', JSON.stringify(brokers));
+    this.server.emit('authorization_status', brokers);
+    this.server.emit('BargainStocks', res);
+  }
+  @SubscribeMessage('SellStock')
+  SellStock(client: Socket, body): void {
+    const __dirname = path.resolve() + '/src/json_files';
+    for (let i = 0; i < brokers.length; i++) {
+      if (brokers[i].id === parseInt(body.userid)) {
+        brokers[i].money += body.price*body.count
+        for(let j = 0; j < brokers[i].stocks.length; j++){
+          if(brokers[i].stocks[j].id === body.stockid){
+            brokers[i].stocks[j].count -= body.count
+          //  brokers[i].stocks[j].difference += body.price*body.count
+            break;
+          }
+        }
+        break;
+      }
+    }
+    for(let i = 0; i < stocks.length; i++){
+      if (stocks[i].id === parseInt(body.stockid)){
+        stocks[i].count += body.count
+        break;
+      }
+    }
+    const res = [];
+    for (let i = 0; i < stocks.length; i++) {
+      if (stocks[i].participation) {
+        res.push({ data: stocks[i], info: stocks_info[i] });
+      }
+    }
+    fs.writeFileSync(__dirname + '/stocks.json', JSON.stringify(stocks));
+    fs.writeFileSync(__dirname + '/brokers.json', JSON.stringify(brokers));
+    this.server.emit('authorization_status', brokers);
+    this.server.emit('BargainStocks', res);
   }
   /*@SubscribeMessage('start_bargain')
   StartBargaing(client: Socket, body): void {   // передать что клиент зашёл в аккаунт

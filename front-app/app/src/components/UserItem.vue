@@ -1,5 +1,5 @@
 <template>
-<li v-bind:class="{blocked: user.active,active: !user.active}"><router-link v-bind:to="{name:'user',params:{num: user.id}}" v-on:click="$emit('active_user',user.id)">{{user.name}}</router-link></li>
+  <button v-bind:class="{blocked: user.active,active: !user.active}"  id='but' v-on:click="$router.push('/user/' + user.id);$emit('active_user',user.id)">{{user.name}}</button>
 </template>
 
 <script>
@@ -15,11 +15,24 @@ export default {
 </script>
 
 <style scoped>
-li.active {
-  background-color: aqua;
-  pointer-events: auto;
+button.active{
+  text-align: center;
+  background-color: #272727;
+  color: #14A76C;
+  width: 200px;
+  height: 30px;
+  font-size: 15px;
+  cursor: pointer;
 }
-.blocked{
+button.active:hover{
+  background-color: #FFE400;
+}
+button.blocked{
+  text-align: center;
+  color: #14A76C;
+  width: 200px;
+  height: 30px;
+  font-size: 15px;
   background-color: gray;
   pointer-events: none;
 }

@@ -71,13 +71,24 @@ export default {
       countvalue: 0,
       checkvalue: false,
       pricearr: [],
-      chartData: {}
+      chartData: {},
+      mystock: this.stock
     }
   },
   created() {
       this.renderInfoArr()
     this.countvalue = this.stock.data.count
     this.checkvalue = this.stock.data.participation
+    const socket = io('http://localhost:3000/usersocket')
+    socket.on('UpdateStocks', (message) => {
+      for(let stock of message){
+        if(stock.data.id === this.mystock.data.id){
+          this.countvalue = stock.data.count
+          this.checkvalue = stock.data.participation
+          break
+        }
+      }
+    })
   },
   methods:{
     Change_particip(e){
@@ -183,7 +194,7 @@ div.graphic{
   margin-right: 10px;
 }
 td.stockstablebody{
-  color: #14A76C;
+  color: #FFE400;
   background-color: #747474;
   font-size: 20px;
   text-align: center;

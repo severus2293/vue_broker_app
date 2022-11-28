@@ -45,6 +45,7 @@ export default {
     }
   },
   created() {
+    const socket = io('http://localhost:3000/usersocket')
     fetch('http://localhost:3000/settings')
         .then(response => response.json())
         .then(json =>{
@@ -53,6 +54,11 @@ export default {
           this.speedvalue = json.speed;
 
         })
+    socket.on('SettingsUpdate', (message) => {
+      this.startdatevalue = message.start
+      this.enddatevalue = message.end
+      this.speedvalue = message.speed
+    })
   },
   methods: {
     ChangeStart(e) {

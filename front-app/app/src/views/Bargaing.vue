@@ -2,6 +2,19 @@
   <html>
   <div class='stockspage_box'>
     <h2>Торги</h2>
+    <button class='exitbutton'  id='back' v-on:click="$router.push(backpath)">Назад</button>
+    <div class='stockfield userform'>
+      <p class='stockplabel'>
+        Брокер:
+      </p>
+      <p class='stock_p'>{{broker.name}}</p>
+    </div>
+    <div class='stockfield userform'>
+      <p class='stockplabel'>
+        Баланс:
+      </p>
+      <p class='stock_p'>{{broker.money}}</p>
+    </div>
     <div class='changedatabox'>
 
       <div class='stockfield timer'>
@@ -18,7 +31,7 @@
       <p class='stock_p'   id = "iterdat">{{datevalue}}</p>
     </div>
   </div>
-  <BargainStockItem v-for="stock of stocks" v-bind:stock = 'stock'  v-bind:id = 'stock.info.id' v-bind:startdate="''+ setting.start.split('-')[1] +'/'+ setting.start.split('-')[2] + '/'+ setting.start.split('-')[0]" v-bind:enddate='datevalue' :key="stock.info.id"/>
+  <BargainStockItem v-on:buy_stock = "Buy_Stock" v-on:sell_stock ='Sell_Stock' v-for="stock of stocks" v-bind:stock = 'stock' v-bind:userid="userid"  v-bind:id = 'stock.info.id' v-bind:startdate="''+ setting.start.split('-')[1] +'/'+ setting.start.split('-')[2] + '/'+ setting.start.split('-')[0]" v-bind:enddate='datevalue' :key="stock.info.id"/>
   </div>
   </html>
 </template>
@@ -31,10 +44,16 @@ export default {
   components:{BargainStockItem},
   data(){
     return{
+      backpath: window.location.href.replace('/bargaing','').replace('http://localhost:8080',''),
       stocks: [],
+      userbalance: 0,
+      usercountstocks: 0,
       setting: {},
       timervalue: 0,
+      broker: {},
       datevalue: '',
+      socket: {},
+      userid: parseInt(window.location.href.replace('/bargaing','').replace('/user/','').replace('http://localhost:8080','')),
     }
   },
   async created() {
@@ -45,6 +64,7 @@ export default {
         .then(json =>{
           this.stocks = json
         })
+
     /*socket.on('BargainStocks', (message) => {
       this.stocks = message
     })*/
@@ -61,12 +81,54 @@ export default {
           this.datevalue = ''+ message.start.split('-')[1] +'/'+ message.start.split('-')[2] + '/'+ message.start.split('-')[0]
     })*/
     const sock = io('http://localhost:3000/usersocket')
+    this.socket = sock
     sock.on('ChangeTime', (message) => {
       this.timervalue = message.speed
       this.datevalue = message.date
 
     })
+    sock.on('BargainStocks', (message) => {
+      this.stocks = message
+
+    })
+
+    sock.on('authorization_status', (message) => {
+      for(let broker of message){
+        if(broker.id === this.userid){
+          this.broker = broker
+          //this.countvalue = stock.data.count
+          //this.checkvalue = stock.data.participation
+          break
+        }
+      }
+    })
   },
+  methods: {
+    Buy_Stock(e,userid,price,count,stockid,stockcount){
+      e.preventDefault()
+      if(parseInt(count) > 0 && parseInt(count) <= stockcount && parseFloat((price).replace('$',''))*parseInt(count) <= this.broker.money){
+        const message = {
+          count: count,
+          price: parseFloat((price).replace('$','')),
+          userid:  userid,
+          stockid: stockid,
+        }
+        this.socket.emit('BuyStock',message)
+      }
+    },
+    Sell_Stock(e,userid,price,count,stockid,userstockcount){
+      e.preventDefault()
+      if(parseInt(count) > 0 && parseInt(count) <= userstockcount){
+        const message = {
+          count: count,
+          price: parseFloat((price).replace('$','')),
+          userid:  userid,
+          stockid: stockid,
+        }
+        this.socket.emit('SellStock',message)
+      }
+    }
+  }
 }
 </script>
 
@@ -88,7 +150,18 @@ body{
   margin: 0;
   padding: 0;
 }
-
+button.exitbutton{
+  margin-left: 70%;
+  margin-top: 1%;
+  cursor: pointer;
+  width: 200px;
+  height: 50px;
+  color: #FFE400;
+  background-color: #272727;
+}
+button.exitbutton:hover{
+  background-color: green;
+}
 div.changedatabox{
   display: flex;
   align-items: center;
@@ -114,6 +187,9 @@ div.stockfield{
   height: 30px;
   display: flex;
   flex-direction: row;
+}
+div.stockfield.userform{
+  margin-right: 80%;
 }
 .stockplabel{
   color: #FF652F;

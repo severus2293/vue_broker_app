@@ -17,7 +17,7 @@ const routeInfos = [
         params: true,
         component : User
     },
-    {   path : "/bargaing",
+    {   path : "/user/:num/bargaing",
         component : Bargaing
     },
     {   path : "/user/:num/admin",

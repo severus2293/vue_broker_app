@@ -20,6 +20,20 @@
           <input class='brokers_input' type='number'  v-bind:id = "'moneyfold:' + brokers.length" v-on:change="Change_Mon($event)" v-bind:value="money_field"/>
 
         </div>
+        <div class="field">
+          <label class='brokerlabel' for='statusfold'>
+            статус:
+          </label>
+          <select class="brokers_input"  v-on:change="Change_Rol($event)" >
+            <option value="admin">
+              Администратор
+            </option>
+            <option value="user">
+              Пользователь
+            </option>
+          </select>
+
+        </div>
         <button class='brokerbutton addbut' v-on:click="Add_brok($event)">Добавить</button>
       </div>
     </form>
@@ -42,7 +56,8 @@ export default {
       brokers: [],
       backpath: window.location.href.replace('/brokers','').replace('http://localhost:8080',''),
       name_field: '',
-      money_field: ''
+      money_field: '',
+      role_field: '',
     }
   },
   created() {
@@ -64,6 +79,9 @@ export default {
     Change_Name(e){
       this.name_field = e.target.value
     },
+    Change_Rol(e){
+      this.role_field = e.target.value
+    },
     Add_brok(e){
       e.preventDefault()
       if(parseFloat(this.money_field) > 0 && this.name_field.trim().length > 0){
@@ -75,19 +93,28 @@ export default {
           active: false,
           stocks: [{
             "id": 0,
-            "count": 0
+            "count": 0,
+            "difference": 0
           },{"id": 1,
-            "count": 0},{"id": 2,
-            "count": 0},{"id": 3,
-            "count": 0},{"id": 4,
-            "count": 0},{"id": 5,
-            "count": 0},{"id": 6,
-            "count": 0},{"id": 7,
-            "count": 0}],
-          role: "user"
+            "count": 0,
+            "difference": 0},{"id": 2,
+            "count": 0,
+            "difference": 0},{"id": 3,
+            "count": 0,
+            "difference": 0},{"id": 4,
+            "count": 0,
+            "difference": 0},{"id": 5,
+            "count": 0,
+            "difference": 0},{"id": 6,
+            "count": 0,
+            "difference": 0},{"id": 7,
+            "count": 0,
+            "difference": 0}],
+          role: this.role_field
         }
         this.money_field = ''
         this.name_field = ''
+        this.role_field = ''
         const socket = this.$store.getters.GetSocket
         socket.emit('addUser',message)
       }
@@ -111,6 +138,14 @@ button.exitbutton{
   color: #FFE400;
   background-color: #272727;
 }
+select.brokers_input{
+  text-align: center;
+  background-color: #272727;
+  color: #14A76C;
+  height: 30px;
+  width: 192px;
+  font-size: 15px;
+}
 button.exitbutton:hover{
   background-color: green;
 }
@@ -119,7 +154,7 @@ div.main{
   flex-direction: column;
   flex-wrap: wrap;
   width: 550px;
-  height: 110px;
+  height: 150px;
   float: left;
   background: #747474;
   padding: 5px;

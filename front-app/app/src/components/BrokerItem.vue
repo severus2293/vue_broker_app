@@ -15,6 +15,44 @@
       <input class='brokers_input' type='number'  v-bind:value="broker.money"  v-bind:id = "'moneyfold: ' + broker.id" v-on:change="Change_money($event)"/>
 
     </div>
+    <div class="field">
+      <label class='brokerlabel' for='statusfold'>
+        статус:
+      </label>
+      <select class="brokers_input" v-bind:id="'select: ' + broker.id" v-if="broker.active && broker.role ==='admin'" v-on:change="change_status($event)" disabled>
+        <option value="admin" selected>
+          Администратор
+        </option>
+        <option value="user" >
+           Пользователь
+        </option>
+      </select>
+      <select class="brokers_input" v-bind:id="'select: ' + broker.id" v-if="broker.active && broker.role ==='user'" v-on:change="change_status($event)" disabled>
+        <option value="admin">
+          Администратор
+        </option>
+        <option value="user" selected>
+          Пользователь
+        </option>
+      </select>
+      <select class="brokers_input" v-bind:id="'select: ' + broker.id" v-if="!broker.active && broker.role ==='admin'" v-on:change="change_status($event)">
+        <option value="admin" selected>
+          Администратор
+        </option>
+        <option value="user" >
+          Пользователь
+        </option>
+      </select>
+      <select class="brokers_input" v-bind:id="'select: ' + broker.id" v-if="!broker.active && broker.role ==='user'" v-on:change="change_status($event)">
+        <option value="admin">
+          Администратор
+        </option>
+        <option value="user" selected>
+          Пользователь
+        </option>
+      </select>
+
+    </div>
     <button v-bind:class='{"brokerbutton delbut": !broker.active,"brokerbutton locked": broker.active }'  v-bind:id='"buttonbrok: " + broker.id' v-on:click="Del_User($event)" >{{butname}}</button>
 
   </div>
@@ -42,6 +80,14 @@ export default {
       }
 
     },
+    change_status(e){
+      const socket = io('http://localhost:3000/usersocket')
+      const message = {
+        value: e.target.value,
+        id: e.target.id.replace('select:',''),
+      }
+      socket.emit('changeRole',message)
+    },
     Change_money(e){
        if(parseFloat(e.target.value) > 0){
          //const socket = this.$store.getters.GetSocket
@@ -63,7 +109,7 @@ div.main{
   flex-direction: column;
   flex-wrap: wrap;
   width: 550px;
-  height: 110px;
+  height: 150px;
   float: left;
   background: #747474;
   padding: 5px;
@@ -83,6 +129,14 @@ input.brokers_input{
   background-color: #272727;
   color: #14A76C;
   height: 30px;
+  font-size: 15px;
+}
+select.brokers_input{
+  text-align: center;
+  background-color: #272727;
+  color: #14A76C;
+  height: 30px;
+  width: 192px;
   font-size: 15px;
 }
 button.brokerbutton.delbut:hover{

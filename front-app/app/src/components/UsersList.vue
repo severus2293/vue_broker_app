@@ -1,10 +1,8 @@
 <template>
-<div>
-  <ul>
+<div  class="userbox">
     <UserItem v-for="user of users"
               v-bind:user="user" :key="user.id"
     v-on:active_user = "Active_User"/>
-  </ul>
 </div>
 </template>
 
@@ -40,5 +38,10 @@ export default {
 </script>
 
 <style scoped>
-
+div.userbox{
+  margin-top: 3%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 </style>

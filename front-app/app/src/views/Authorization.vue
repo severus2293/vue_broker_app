@@ -1,10 +1,10 @@
 <template>
-<div>
-  <h2>Авторизация</h2>
+<html>
+  <h2 id="test">Авторизация</h2>
   <UsersList v-bind:users="users" v-bind:socket="socket"
              v-on:leave_user = "Leave_User"
   />
-</div>
+</html>
 </template>
 
 <script>
@@ -59,5 +59,21 @@ export default {
 </script>
 
 <style scoped>
-
+html{
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  min-width: 1540px;
+  min-height: 700px;
+  background-image: url('~@/assets/back_main.png');
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  background-repeat: no-repeat
+}
+h2 {
+  color: #747474;
+  font-family: Open Sans, sans-serif;
+}
 </style>
